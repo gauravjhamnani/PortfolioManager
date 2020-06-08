@@ -19,11 +19,11 @@ import org.springframework.web.client.RestTemplate;
 public class AlphavantageService implements StockQuotesService {
 
   // TODO: CRIO_TASK_MODULE_EXCEPTIONS
-  //  Update the method signature to match the signature change in the interface.
-  //  Start throwing new StockQuoteServiceException when you get some invalid response from
-  //  Alphavangate, or you encounter a runtime exception during Json parsing.
-  //  Make sure that the exception propagates all the way from PortfolioManager,
-  //  so that the external user's of our API are able to explicitly handle this exception upfront.
+  //   1. Update the method signature to match the signature change in the interface.
+  //   2. Start throwing new StockQuoteServiceException when you get some invalid response from
+  //      Alphavantage, or you encounter a runtime exception during Json parsing.
+  //   3. Make sure that the exception propagates all the way from PortfolioManager, so that the
+  //      external user's of our API are able to explicitly handle this exception upfront.
   //CHECKSTYLE:OFF
 
 }

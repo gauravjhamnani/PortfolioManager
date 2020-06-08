@@ -7,9 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public interface StockQuotesService {
-
 
 
   // TODO: CRIO_TASK_MODULE_EXCEPTIONS
