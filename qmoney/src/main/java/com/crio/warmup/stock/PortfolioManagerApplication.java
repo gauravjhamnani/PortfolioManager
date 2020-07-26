@@ -1,28 +1,30 @@
 package com.crio.warmup.stock;
 
-import com.crio.warmup.stock.dto.AnnualizedReturn;
+//import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
+//import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+//import java.time.LocalDate;
+//import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+//import java.util.Collections;
+//import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
+//import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+//import java.util.stream.Collectors;
+//import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
-import org.springframework.web.client.RestTemplate;
+//import org.springframework.web.client.RestTemplate;
 
 
 public class PortfolioManagerApplication {
@@ -38,8 +40,18 @@ public class PortfolioManagerApplication {
   //  2. You can use "./gradlew build" to check if your code builds successfully.
 
   public static List<String> mainReadFile(String[] args) throws IOException, URISyntaxException {
+    String filename = args[0];
+    File fobject = resolveFileFromResources(filename);
+    ObjectMapper obmapper = getObjectMapper();
+    List<PortfolioTrade> pf
+        = obmapper.readValue(fobject,new TypeReference<List<PortfolioTrade>>(){});
+    List<String> returnlist = new ArrayList<String>();
+    for (PortfolioTrade it:pf) {
 
-     return Collections.emptyList();
+      returnlist.add(it.getSymbol());
+    
+    }
+    return returnlist;
   }
 
 
@@ -107,17 +119,17 @@ public class PortfolioManagerApplication {
   //  ./gradlew test --tests PortfolioManagerApplicationTest.testDebugValues
 
   public static List<String> debugOutputs() {
-
-     String valueOfArgument0 = "trades.json";
-     String resultOfResolveFilePathArgs0 = "";
-     String toStringOfObjectMapper = "";
-     String functionNameFromTestFileInStackTrace = "";
-     String lineNumberFromTestFileInStackTrace = "";
+    String valueOfArgument0 = "trades.json";
+    String resultOfResolveFilePathArgs0
+        = "/home/crio-user/workspace/gaurav-jh-in-ME_QMONEY/qmoney/bin/main/trades.json";
+    String toStringOfObjectMapper = "com.fasterxml.jackson.databind.ObjectMapper@46268f08";
+    String functionNameFromTestFileInStackTrace = ".mainReadFile";
+    String lineNumberFromTestFileInStackTrace = "22";
 
 
     return Arrays.asList(new String[]{valueOfArgument0, resultOfResolveFilePathArgs0,
-        toStringOfObjectMapper, functionNameFromTestFileInStackTrace,
-        lineNumberFromTestFileInStackTrace});
+      toStringOfObjectMapper, functionNameFromTestFileInStackTrace,
+      lineNumberFromTestFileInStackTrace});
   }
 
 
