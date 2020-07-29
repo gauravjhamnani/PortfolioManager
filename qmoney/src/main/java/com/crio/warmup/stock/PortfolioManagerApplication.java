@@ -1,14 +1,14 @@
 package com.crio.warmup.stock;
 
 //import com.crio.warmup.stock.dto.AnnualizedReturn;
+import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.dto.TotalReturnsDto;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.crio.warmup.stock.dto.AnnualizedReturn;
 //import com.crio.warmup.stock.dto.PortfolioTrade;
-import com.crio.warmup.stock.dto.TotalReturnsDto;
 import com.fasterxml.jackson.databind.JsonMappingException;
 //import com.crio.warmup.stock.log.UncaughtExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +44,7 @@ public class PortfolioManagerApplication {
   static RestTemplate restTemplate;
   private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
 
-  public static String getPriceJSON(String url) throws IOException, URISyntaxException{
+  public static String getPriceJson(String url) throws IOException, URISyntaxException {
 
     HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -53,11 +53,12 @@ public class PortfolioManagerApplication {
     return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
   }
 
-  public static Double getPrice(String stockName, String date) throws IOException, URISyntaxException{
+  public static Double getPrice(
+      String stockName, String date) throws IOException, URISyntaxException {
   
-    String url = "https://api.tiingo.com/tiingo/daily/"+stockName+"/prices?startDate="+
-        date+"&endDate="+date+"&token="+key;
-    String json = getPriceJSON(url);
+    String url = "https://api.tiingo.com/tiingo/daily/" + stockName + "/prices?startDate=" 
+        + date + "&endDate=" + date + "&token=" + key;
+    String json = getPriceJson(url);
     ObjectMapper obmapper = getObjectMapper();
     TiingoCandle pf = obmapper.readValue(json,TiingoCandle.class);
     return pf.getClose();
@@ -79,7 +80,7 @@ public class PortfolioManagerApplication {
     ObjectMapper obmapper = getObjectMapper();
     List<PortfolioTrade> pf
         = obmapper.readValue(fobject,new TypeReference<List<PortfolioTrade>>(){});
-    List<String> returnlist=new ArrayList<String>();
+    List<String> returnlist = new ArrayList<String>();
     for (PortfolioTrade it:pf) {
 
       returnlist.add(it.getSymbol());
@@ -117,7 +118,8 @@ public class PortfolioManagerApplication {
     logger.info(mapper.writeValueAsString(object));
   }
 
-  private static File resolveFileFromResources(String filename) throws IOException, URISyntaxException {
+  private static File resolveFileFromResources(
+      String filename) throws IOException, URISyntaxException {
     return Paths.get(
         Thread.currentThread().getContextClassLoader().getResource(filename).toURI()).toFile();
   }
@@ -176,8 +178,8 @@ public class PortfolioManagerApplication {
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
   public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
 
-    String filename=args[0];
-    String date=args[1];  //storing date asa string
+    String filename = args[0];
+    String date = args[1];  //storing date as a string
     File fobject = resolveFileFromResources(filename);
     ObjectMapper obmapper = getObjectMapper();
     List<PortfolioTrade> pf
