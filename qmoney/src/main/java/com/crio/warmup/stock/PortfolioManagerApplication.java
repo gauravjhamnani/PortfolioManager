@@ -2,32 +2,66 @@ package com.crio.warmup.stock;
 
 //import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
+import com.crio.warmup.stock.dto.TiingoCandle;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.crio.warmup.stock.dto.AnnualizedReturn;
+//import com.crio.warmup.stock.dto.PortfolioTrade;
+import com.crio.warmup.stock.dto.TotalReturnsDto;
+import com.fasterxml.jackson.databind.JsonMappingException;
+//import com.crio.warmup.stock.log.UncaughtExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-//import java.nio.file.Files;
+import java.nio.file.Files;
 import java.nio.file.Paths;
-//import java.time.LocalDate;
-//import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-//import java.util.Collections;
-//import java.util.Comparator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-//import java.util.logging.Level;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-//import java.util.stream.Collectors;
-//import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
-//import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
+
 
 
 public class PortfolioManagerApplication {
+
+  static RestTemplate restTemplate;
+  private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
+
+  public static String getPriceJSON(String url) throws IOException, URISyntaxException{
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+    HttpEntity<String> entity = new HttpEntity<String>(headers);
+
+    return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
+  }
+
+  public static Double getPrice(String stockName, String date) throws IOException, URISyntaxException{
+  
+    String url = "https://api.tiingo.com/tiingo/daily/"+stockName+"/prices?startDate="+
+        date+"&endDate="+date+"&token="+key;
+    String json = getPriceJSON(url);
+    ObjectMapper obmapper = getObjectMapper();
+    TiingoCandle pf = obmapper.readValue(json,TiingoCandle.class);
+    return pf.getClose();
+  }
 
   // TODO: CRIO_TASK_MODULE_JSON_PARSING
   //  Read the json file provided in the argument[0]. The file will be available in the classpath.
@@ -45,7 +79,7 @@ public class PortfolioManagerApplication {
     ObjectMapper obmapper = getObjectMapper();
     List<PortfolioTrade> pf
         = obmapper.readValue(fobject,new TypeReference<List<PortfolioTrade>>(){});
-    List<String> returnlist = new ArrayList<String>();
+    List<String> returnlist=new ArrayList<String>();
     for (PortfolioTrade it:pf) {
 
       returnlist.add(it.getSymbol());
@@ -63,6 +97,11 @@ public class PortfolioManagerApplication {
 
 
 
+
+  // TODO: CRIO_TASK_MODULE_REST_API
+  //  Find out the closing price of each stock on the end_date and return the list
+  //  of all symbols in ascending order by its close value on end date.
+
   // Note:
   // 1. You may have to register on Tiingo to get the api_token.
   // 2. Look at args parameter and the module instructions carefully.
@@ -72,13 +111,13 @@ public class PortfolioManagerApplication {
 
 
 
-  private static void printJsonObject(Object object) throws IOException {
+  private static void printJsonObject(Object object) throws IOException, URISyntaxException {
     Logger logger = Logger.getLogger(PortfolioManagerApplication.class.getCanonicalName());
     ObjectMapper mapper = new ObjectMapper();
     logger.info(mapper.writeValueAsString(object));
   }
 
-  private static File resolveFileFromResources(String filename) throws URISyntaxException {
+  private static File resolveFileFromResources(String filename) throws IOException, URISyntaxException {
     return Paths.get(
         Thread.currentThread().getContextClassLoader().getResource(filename).toURI()).toFile();
   }
@@ -135,6 +174,36 @@ public class PortfolioManagerApplication {
 
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
+  public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
+
+    String filename=args[0];
+    String date=args[1];  //storing date asa string
+    File fobject = resolveFileFromResources(filename);
+    ObjectMapper obmapper = getObjectMapper();
+    List<PortfolioTrade> pf
+        = obmapper.readValue(fobject,new TypeReference<List<PortfolioTrade>>(){});
+    List<Pair> stocklist = new ArrayList<Pair>();
+    for (PortfolioTrade it:pf) {
+
+      String stockname = it.getSymbol();
+      Double price = getPrice(stockname,date);
+      stocklist.add(new Pair(stockname,price));
+    }
+    Collections.sort(stocklist, new Sortbyprice());
+    List<String> returnlist = new ArrayList<String>();
+    for (Pair it:stocklist) {
+      returnlist.add(it.getName());
+    }
+
+    return returnlist;
+  }
+
+
+
+
+
+
+
 
 
 
