@@ -13,12 +13,21 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 //import com.crio.warmup.stock.log.UncaughtExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,24 +50,66 @@ import org.springframework.web.client.RestTemplate;
 
 public class PortfolioManagerApplication {
 
-  static RestTemplate restTemplate;
+  private static RestTemplate restTemplate;
   private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
 
+
+  public static boolean isDateAfterPurchaseDate(LocalDate purDate, String enqDate) throws ParseException {
+
+    LocalDate ed = LocalDate.parse(enqDate,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    //Date ed = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
+    return purDate.isAfter(ed);
+  }
+
+  public static boolean isValidDate(String inDate) {
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    dateFormat.setLenient(false);
+    try {
+        dateFormat.parse(inDate.trim());
+    } catch (ParseException pe) {
+        return false;
+    }
+    return true;
+  }
+
+  // return JSON obtained from API call as a string 
   public static String getPriceJson(String url) throws IOException, URISyntaxException {
 
-    HttpHeaders headers = new HttpHeaders();
+    /*HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
     HttpEntity<String> entity = new HttpEntity<String>(headers);
 
-    return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
-  }
+    return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();*/
+    URL link = new URL(url);
+    HttpURLConnection con = (HttpURLConnection) link.openConnection();
+    con.setRequestMethod("GET");
+    String readLine = null;
+    int responseCode = con.getResponseCode();
+    if(responseCode == HttpURLConnection.HTTP_OK) {
+      BufferedReader in = new BufferedReader(
+          new InputStreamReader(con.getInputStream()));
+      StringBuffer response = new StringBuffer();
+      while ((readLine = in .readLine()) != null) {
+        response.append(readLine);
+      }
+      in .close();
+      return response.toString();
+    }
+    else {
+      return "";
+    }
 
+
+    
+  }
+  // Check this menthod later on the substring thing 
   public static Double getPrice(
       String stockName, String date) throws IOException, URISyntaxException {
   
     String url = "https://api.tiingo.com/tiingo/daily/" + stockName + "/prices?startDate=" 
         + date + "&endDate=" + date + "&token=" + key;
-    String json = getPriceJson(url);
+    String json_in = getPriceJson(url);
+    String json=json_in.substring(1, json_in.length()-1); //to remove square brackets obtained in the string
     ObjectMapper obmapper = getObjectMapper();
     TiingoCandle pf = obmapper.readValue(json,TiingoCandle.class);
     return pf.getClose();
@@ -176,10 +227,14 @@ public class PortfolioManagerApplication {
 
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
-  public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException {
+  public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException, ParseException {
 
     String filename = args[0];
     String date = args[1];  //storing date as a string
+    if(!isValidDate(date)) {
+      //throw new IllegalArgumentException("Given date is invalid and cannot be processed.");
+      throw new NullPointerException();
+    }
     File fobject = resolveFileFromResources(filename);
     ObjectMapper obmapper = getObjectMapper();
     List<PortfolioTrade> pf
@@ -188,6 +243,9 @@ public class PortfolioManagerApplication {
     for (PortfolioTrade it:pf) {
 
       String stockname = it.getSymbol();
+      if(!isDateAfterPurchaseDate(it.getPurchaseDate(),date)) {
+        throw new NullPointerException();
+      }
       Double price = getPrice(stockname,date);
       stocklist.add(new Pair(stockname,price));
     }
