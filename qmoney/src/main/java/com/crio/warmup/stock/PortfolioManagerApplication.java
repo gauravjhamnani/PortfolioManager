@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
+import org.omg.CORBA.portable.InputStream;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -87,8 +88,9 @@ public class PortfolioManagerApplication {
     String readLine;
     int responseCode = con.getResponseCode();
     if (responseCode == HttpURLConnection.HTTP_OK) {
+      InputStream ip = (InputStream) con.getInputStream();
       BufferedReader in = new BufferedReader(
-          new InputStreamReader(con.getInputStream()));
+          new InputStreamReader(ip));
       StringBuffer response = new StringBuffer();
       while ((readLine = in.readLine()) != null) {
         response.append(readLine);
