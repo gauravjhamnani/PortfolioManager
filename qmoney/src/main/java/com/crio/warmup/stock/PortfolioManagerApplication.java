@@ -63,7 +63,7 @@ public class PortfolioManagerApplication {
   }
 
   public static boolean isValidDate(String inDate) {
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setLenient(false);
     try {
       dateFormat.parse(inDate.trim());
