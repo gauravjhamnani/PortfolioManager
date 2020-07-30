@@ -64,7 +64,7 @@ public class PortfolioManagerApplication {
 
     LocalDate ed = LocalDate.parse(enqDate,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     //Date ed = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
-    return purDate.isAfter(ed);
+    return ed.isAfter(purDate);
   }
 
   public static boolean isValidDate(String inDate) {
@@ -92,9 +92,8 @@ public class PortfolioManagerApplication {
     String readLine;
     int responseCode = con.getResponseCode();
     if (responseCode == HttpURLConnection.HTTP_OK) {
-      InputStream ip = (InputStream) con.getInputStream();
       BufferedReader in = new BufferedReader(
-          new InputStreamReader(ip,Charset.forName("UTF8")));
+          new InputStreamReader(con.getInputStream()/*,Charset.forName("UTF16")*/));
       StringBuffer response = new StringBuffer();
       while ((readLine = in.readLine()) != null) {
         response.append(readLine);
