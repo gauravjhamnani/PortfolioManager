@@ -54,7 +54,8 @@ public class PortfolioManagerApplication {
   private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
 
 
-  public static boolean isDateAfterPurchaseDate(LocalDate purDate, String enqDate) throws ParseException {
+  public static boolean isDateAfterPurchaseDate(
+      LocalDate purDate, String enqDate) throws ParseException {
 
     LocalDate ed = LocalDate.parse(enqDate,DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     //Date ed = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
@@ -62,12 +63,12 @@ public class PortfolioManagerApplication {
   }
 
   public static boolean isValidDate(String inDate) {
-    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setLenient(false);
     try {
-        dateFormat.parse(inDate.trim());
+      dateFormat.parse(inDate.trim());
     } catch (ParseException pe) {
-        return false;
+      return false;
     }
     return true;
   }
@@ -83,19 +84,18 @@ public class PortfolioManagerApplication {
     URL link = new URL(url);
     HttpURLConnection con = (HttpURLConnection) link.openConnection();
     con.setRequestMethod("GET");
-    String readLine = null;
+    String readLine;
     int responseCode = con.getResponseCode();
-    if(responseCode == HttpURLConnection.HTTP_OK) {
+    if (responseCode == HttpURLConnection.HTTP_OK) {
       BufferedReader in = new BufferedReader(
           new InputStreamReader(con.getInputStream()));
       StringBuffer response = new StringBuffer();
-      while ((readLine = in .readLine()) != null) {
+      while ((readLine = in.readLine()) != null) {
         response.append(readLine);
       }
-      in .close();
+      in.close();
       return response.toString();
-    }
-    else {
+    } else {
       return "";
     }
 
@@ -103,15 +103,18 @@ public class PortfolioManagerApplication {
     
   }
   // Check this menthod later on the substring thing 
+
   public static Double getPrice(
       String stockName, String date) throws IOException, URISyntaxException {
   
     String url = "https://api.tiingo.com/tiingo/daily/" + stockName + "/prices?startDate=" 
         + date + "&endDate=" + date + "&token=" + key;
-    String json_in = getPriceJson(url);
-    String json=json_in.substring(1, json_in.length()-1); //to remove square brackets obtained in the string
+    String jsonIn = getPriceJson(url);
+    String json = jsonIn.substring(
+        1, jsonIn.length() - 1); //to remove square brackets obtained in the string
     ObjectMapper obmapper = getObjectMapper();
-    TiingoCandle pf = obmapper.readValue(json,TiingoCandle.class);
+    TiingoCandle pf = obmapper.readValue(
+        json,TiingoCandle.class);
     return pf.getClose();
   }
 
@@ -227,11 +230,12 @@ public class PortfolioManagerApplication {
 
   // Note:
   // Remember to confirm that you are getting same results for annualized returns as in Module 3.
-  public static List<String> mainReadQuotes(String[] args) throws IOException, URISyntaxException, ParseException {
+  public static List<String> mainReadQuotes(
+      String[] args) throws IOException, URISyntaxException, ParseException {
 
     String filename = args[0];
     String date = args[1];  //storing date as a string
-    if(!isValidDate(date)) {
+    if (!isValidDate(date)) {
       //throw new IllegalArgumentException("Given date is invalid and cannot be processed.");
       throw new NullPointerException();
     }
@@ -243,7 +247,7 @@ public class PortfolioManagerApplication {
     for (PortfolioTrade it:pf) {
 
       String stockname = it.getSymbol();
-      if(!isDateAfterPurchaseDate(it.getPurchaseDate(),date)) {
+      if (!isDateAfterPurchaseDate(it.getPurchaseDate(),date)) {
         throw new NullPointerException();
       }
       Double price = getPrice(stockname,date);
