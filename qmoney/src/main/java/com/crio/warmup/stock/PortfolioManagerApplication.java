@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
@@ -39,6 +40,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.security.auth.login.Configuration;
+
 import org.apache.logging.log4j.ThreadContext;
 import org.omg.CORBA.portable.InputStream;
 import org.springframework.http.HttpEntity;
@@ -90,7 +94,7 @@ public class PortfolioManagerApplication {
     if (responseCode == HttpURLConnection.HTTP_OK) {
       InputStream ip = (InputStream) con.getInputStream();
       BufferedReader in = new BufferedReader(
-          new InputStreamReader(ip));
+          new InputStreamReader(ip,Charset.forName("UTF8")));
       StringBuffer response = new StringBuffer();
       while ((readLine = in.readLine()) != null) {
         response.append(readLine);
