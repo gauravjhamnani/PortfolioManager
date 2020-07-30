@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
@@ -93,7 +94,7 @@ public class PortfolioManagerApplication {
     int responseCode = con.getResponseCode();
     if (responseCode == HttpURLConnection.HTTP_OK) {
       BufferedReader in = new BufferedReader(
-          new InputStreamReader(con.getInputStream()/*,Charset.forName("UTF16")*/));
+          new InputStreamReader(con.getInputStream(),Charset.defaultCharset()));
       StringBuffer response = new StringBuffer();
       while ((readLine = in.readLine()) != null) {
         response.append(readLine);
