@@ -339,10 +339,11 @@ public class PortfolioManagerApplication {
           it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
     }
 
-    Collections.sort(list);
+    Collections.sort(list, AnnualizedReturn.name);
     
     return list;
   }
+  
 
   // TODO: CRIO_TASK_MODULE_CALCULATIONS
   //  Return the populated list of AnnualizedReturn for all stocks.
