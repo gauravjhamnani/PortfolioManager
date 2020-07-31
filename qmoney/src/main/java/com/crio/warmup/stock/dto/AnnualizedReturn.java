@@ -4,10 +4,10 @@ package com.crio.warmup.stock.dto;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class AnnualizedReturn implements Comparable<AnnualizedReturn>,Serializable {
+public class AnnualizedReturn/* implements Comparable<AnnualizedReturn>*/ {
 
 
-  private static final long serialVersionUID = 1L;
+  //private static final long serialVersionUID = 1L;
   private final String symbol;
   private final Double annualizedReturn;
   private final Double totalReturns;
@@ -43,12 +43,14 @@ public class AnnualizedReturn implements Comparable<AnnualizedReturn>,Serializab
 
   }*/
 
-  public static Comparator<AnnualizedReturn> name = new Comparator<AnnualizedReturn>() {
+  public static final Comparator<AnnualizedReturn> name = new Comparator<AnnualizedReturn>() {
 
     @Override
     public int compare(AnnualizedReturn o1, AnnualizedReturn o2) {
-      return o1.getAnnualizedReturn() > o2.getAnnualizedReturn() ? 1 : (
-          o1.getAnnualizedReturn() < o2.getAnnualizedReturn() ? -1 : 0);
+
+      return Double.compare(o2.getAnnualizedReturn(), o1.getAnnualizedReturn());
+      /*return o1.getAnnualizedReturn() > o2.getAnnualizedReturn() ? 1 : (
+          o1.getAnnualizedReturn() < o2.getAnnualizedReturn() ? -1 : 0);*/
     }
   };
 
