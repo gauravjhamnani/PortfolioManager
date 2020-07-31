@@ -29,7 +29,9 @@ public class AnnualizedReturn implements Comparable<AnnualizedReturn> {
 
     Double compareval = comparevar.getAnnualizedReturn();
     
-    return (compareval > this.annualizedReturn) ? 1 : 0;
+    //return (compareval > this.annualizedReturn) ? 1 : 0;
+    return (int) (compareval - this.annualizedReturn);
+
 
 
   }
