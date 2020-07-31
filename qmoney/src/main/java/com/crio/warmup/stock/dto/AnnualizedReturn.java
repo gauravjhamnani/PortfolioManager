@@ -1,15 +1,15 @@
 
 package com.crio.warmup.stock.dto;
 
-public class AnnualizedReturn {
+public class AnnualizedReturn implements Comparable<AnnualizedReturn> {
 
   private final String symbol;
-  private final Double annualizedReturnvar;
+  private final Double annualizedReturn;
   private final Double totalReturns;
 
-  public AnnualizedReturn(String symbol, Double annualizedReturnvar, Double totalReturns) {
+  public AnnualizedReturn(String symbol, Double annualizedReturn, Double totalReturns) {
     this.symbol = symbol;
-    this.annualizedReturnvar = annualizedReturnvar;
+    this.annualizedReturn = annualizedReturn;
     this.totalReturns = totalReturns;
   }
 
@@ -17,11 +17,20 @@ public class AnnualizedReturn {
     return symbol;
   }
 
-  public Double getAnnualizedReturnvar() {
-    return annualizedReturnvar;
+  public Double getAnnualizedReturn() {
+    return annualizedReturn;
   }
 
   public Double getTotalReturns() {
     return totalReturns;
+  }
+
+  public int compareTo(AnnualizedReturn comparevar) {
+
+    Double compareval = comparevar.getAnnualizedReturn();
+    
+    return (compareval > this.annualizedReturn) ? 1 : -1;
+
+
   }
 }

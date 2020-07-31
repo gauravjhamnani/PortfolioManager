@@ -1,10 +1,14 @@
 package com.crio.warmup.stock;
 
+
 import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.dto.TotalReturnsDto;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.BufferedReader;
@@ -15,20 +19,32 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.security.auth.login.Configuration;
 import org.apache.logging.log4j.ThreadContext;
+import org.omg.CORBA.portable.InputStream;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
 
@@ -37,22 +53,9 @@ import org.springframework.web.client.RestTemplate;
 
 public class PortfolioManagerApplication {
 
-  private static RestTemplate restTemplate;
+  /*private static RestTemplate restTemplate;
   private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
 
-
-  public static Double holdingPeriod(LocalDate end,LocalDate start) {
-
-    Period interval = Period.between(start, end);
-    Double yearDiff = (double) interval.getYears() + (double) (
-        interval.getMonths()) / 12 + (double) interval.getDays() / 366;
-    /*if ((end.getMonthValue() - start.getMonthValue()) >= 10) {
-      yearDiff++;
-    }*/
-    return yearDiff;
-
-
-  }
 
   public static boolean isDateAfterPurchaseDate(
       LocalDate purDate, String enqDate) throws ParseException {
@@ -61,7 +64,6 @@ public class PortfolioManagerApplication {
     //Date ed = (Date) new SimpleDateFormat("yyyy-MM-dd").parse(localDate);
     return ed.isAfter(purDate);
   }
-
 
   public static boolean isValidDate(String inDate) {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -77,11 +79,11 @@ public class PortfolioManagerApplication {
   // return JSON obtained from API call as a string 
   public static String getPriceJson(String url) throws IOException, URISyntaxException {
 
-    /*HttpHeaders headers = new HttpHeaders();
+    HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
     HttpEntity<String> entity = new HttpEntity<String>(headers);
 
-    return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();*/
+    return restTemplate.exchange(url, HttpMethod.GET, entity, String.class).getBody();
     URL link = new URL(url);
     HttpURLConnection con = (HttpURLConnection) link.openConnection();
     con.setRequestMethod("GET");
@@ -105,59 +107,18 @@ public class PortfolioManagerApplication {
   }
   // Check this menthod later on the substring thing 
 
-  public static String generateUrl(String stockName, LocalDate ldate) {
-    
-    String date = ldate.toString();
+  public static Double getPrice(
+      String stockName, String date) throws IOException, URISyntaxException {
+  
     String url = "https://api.tiingo.com/tiingo/daily/" + stockName + "/prices?startDate=" 
         + date + "&endDate=" + date + "&token=" + key;
-    return url;    
-  }
-
-  public static Pair getPrice(
-      String stockName, String sdate) throws IOException, URISyntaxException {
-  
-    String url;
-    String jsonIn;
-    LocalDate date = LocalDate.parse(sdate);
-    //long ctr = -1;
-    do {
-
-      url = generateUrl(stockName, date);
-      jsonIn = getPriceJson(url);
-      date = date.minusDays(1);
-      //ctr++;
-    } while (jsonIn.length() == 2);
-    date = date.plusDays(1);
+    String jsonIn = getPriceJson(url);
     String json = jsonIn.substring(
         1, jsonIn.length() - 1); //to remove square brackets obtained in the string
     ObjectMapper obmapper = getObjectMapper();
     TiingoCandle pf = obmapper.readValue(
         json,TiingoCandle.class);
-    return new Pair(date.toString(), pf.getClose());
-  }
-
-
-  public static Pair getOpenPrice(
-      String stockName, String sdate) throws IOException, URISyntaxException {
-  
-    String url;
-    String jsonIn;
-    LocalDate date = LocalDate.parse(sdate);
-    //long ctr = -1;
-    do {
-
-      url = generateUrl(stockName, date);
-      jsonIn = getPriceJson(url);
-      date = date.minusDays(1);
-      //ctr++;
-    } while (jsonIn.length() == 2);
-    date = date.plusDays(1);
-    String json = jsonIn.substring(
-        1, jsonIn.length() - 1); //to remove square brackets obtained in the string
-    ObjectMapper obmapper = getObjectMapper();
-    TiingoCandle pf = obmapper.readValue(
-        json,TiingoCandle.class);
-    return new Pair(date.toString(), pf.getOpen());
+    return pf.getClose();
   }
 
   // TODO: CRIO_TASK_MODULE_JSON_PARSING
@@ -187,8 +148,8 @@ public class PortfolioManagerApplication {
 
 
 
-
-  //public class PortfolioManagerApplication {
+*/
+//public class PortfolioManagerApplication {
 
 
 
@@ -305,7 +266,7 @@ public class PortfolioManagerApplication {
       if (!isDateAfterPurchaseDate(it.getPurchaseDate(),date)) {
         throw new NullPointerException();
       }
-      Double price = getPrice(stockname,date).getPrice();
+      Double price = getPrice(stockname,date);
       stocklist.add(new Pair(stockname,price));
     }
     Collections.sort(stocklist, new Sortbyprice());
@@ -316,32 +277,9 @@ public class PortfolioManagerApplication {
 
     return returnlist;
   }
-
-
   public static List<AnnualizedReturn> mainCalculateSingleReturn(String[] args)
       throws IOException, URISyntaxException {
-     
-    String filename = args[0];
-    String sdate = args[1];
-    LocalDate date = LocalDate.parse(sdate);
-    
-    File fobject = resolveFileFromResources(filename);
-    ObjectMapper obmapper = getObjectMapper();
-    List<PortfolioTrade> pf
-        = obmapper.readValue(fobject, new TypeReference<List<PortfolioTrade>>(){});
-    
-    List<AnnualizedReturn> list = new ArrayList<AnnualizedReturn>();
-
-    for (PortfolioTrade it:pf) {
-
-      Pair temp = getPrice(it.getSymbol(),sdate);
-      list.add(calculateAnnualizedReturns(LocalDate.parse(temp.getName()), it, getOpenPrice(
-          it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
-    }
-
-    Collections.sort(list);
-    
-    return list;
+     return Collections.emptyList();
   }
 
   // TODO: CRIO_TASK_MODULE_CALCULATIONS
@@ -357,22 +295,8 @@ public class PortfolioManagerApplication {
   //     ./gradlew test --tests PortfolioManagerApplicationTest.testCalculateAnnualizedReturn
 
   public static AnnualizedReturn calculateAnnualizedReturns(LocalDate endDate,
-      PortfolioTrade trade, 
-        Double buyPrice, Double sellPrice) throws IOException, URISyntaxException {
-    
-
-    
-    //double currVal=getPrice(trade.getSymbol(), endDate.toString());
-    double diff = sellPrice - buyPrice;
-    double totalReturn = diff / buyPrice;
-    Double years = holdingPeriod(endDate, trade.getPurchaseDate());
-    Double raisedTo = years;
-    raisedTo = 1 / raisedTo;
-    /*if (years<=0) {
-      throw new NullPointerException(); //Exact exception has to be figured out yet
-    }*/
-    double annualizedReturns = Math.pow((1 + totalReturn), raisedTo) - 1;
-    return new AnnualizedReturn(trade.getSymbol(), annualizedReturns, totalReturn);
+      PortfolioTrade trade, Double buyPrice, Double sellPrice) {
+      return new AnnualizedReturn("", 0.0, 0.0);
   }
 
 
