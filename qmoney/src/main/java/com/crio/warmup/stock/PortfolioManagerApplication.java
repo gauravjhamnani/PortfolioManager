@@ -323,7 +323,7 @@ public class PortfolioManagerApplication {
      
     String filename = args[0];
     String sdate = args[1];
-    LocalDate date = LocalDate.parse(sdate);
+    //LocalDate date = LocalDate.parse(sdate);
     
     File fobject = resolveFileFromResources(filename);
     ObjectMapper obmapper = getObjectMapper();
