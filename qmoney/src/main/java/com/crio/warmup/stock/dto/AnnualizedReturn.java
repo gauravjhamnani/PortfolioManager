@@ -28,7 +28,7 @@ public class AnnualizedReturn implements Comparable<AnnualizedReturn> {
   }
 
   @Override
-  public int compareTo (AnnualizedReturn comparevar) {
+  public int compareTo(AnnualizedReturn comparevar) {
 
     Double compareval = ((AnnualizedReturn)comparevar).getAnnualizedReturn();
     
@@ -40,20 +40,5 @@ public class AnnualizedReturn implements Comparable<AnnualizedReturn> {
 
   }
 
-  /*public static Comparator<AnnualizedReturn> FruitNameComparator
-                          = new Comparator<AnnualizedReturn() {
-
-	    public int compare(AnnualizedReturn fruit1, AnnualizedReturn fruit2) {
-
-	      String fruitName1 = fruit1.getFruitName().toUpperCase();
-	      String fruitName2 = fruit2.getFruitName().toUpperCase();
-
-	      //ascending order
-	      return fruitName1.compareTo(fruitName2);
-
-	      //descending order
-	      //return fruitName2.compareTo(fruitName1);
-	    }
-
-	};*/
+  
 }
