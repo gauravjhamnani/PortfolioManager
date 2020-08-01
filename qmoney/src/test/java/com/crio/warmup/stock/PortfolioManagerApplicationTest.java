@@ -43,7 +43,7 @@ class PortfolioManagerApplicationTest {
   }
 
   @Test
-  void mainCalculateAnnualReturn() throws Exception {
+  void mainCalculateAnnualReturn() throws IOException, URISyntaxException {
     // given
     String filename = "trades.json";
     // when
