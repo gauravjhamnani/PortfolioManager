@@ -64,13 +64,9 @@ class PortfolioManagerApplicationTest {
   public void testCalculateAnnualizedReturn() throws IOException, URISyntaxException {
 
     PortfolioTrade trade = new PortfolioTrade("AAPL", 50, LocalDate.parse("2015-01-01"));
-    try {
-      AnnualizedReturn returns = PortfolioManagerApplication
-          .calculateAnnualizedReturns(LocalDate.parse("2018-01-01"), trade, 10000.00, 11000.00);
-      Assertions.assertEquals(returns.getAnnualizedReturn(), 0.0322, 0.0001);
-    } catch (IOException e) {
-      return;
-    }
+    AnnualizedReturn returns = PortfolioManagerApplication
+        .calculateAnnualizedReturns(LocalDate.parse("2018-01-01"), trade, 10000.00, 11000.00);
+    Assertions.assertEquals(returns.getAnnualizedReturn(), 0.0322, 0.0001);
     
   }
 
