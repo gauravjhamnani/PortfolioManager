@@ -334,6 +334,9 @@ public class PortfolioManagerApplication {
 
     for (PortfolioTrade it:pf) {
 
+      if (! isValidDate(sdate)) {
+        return Collections.emptyList();
+      }
       Pair temp = getPrice(it.getSymbol(),sdate);
       list.add(calculateAnnualizedReturns(LocalDate.parse(temp.getName()), it, getOpenPrice(
           it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
