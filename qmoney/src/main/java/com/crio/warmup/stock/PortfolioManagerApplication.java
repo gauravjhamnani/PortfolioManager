@@ -339,7 +339,7 @@ public class PortfolioManagerApplication {
         return Collections.emptyList();
       }
       Pair temp = getPrice(it.getSymbol(),sdate);
-      list.add(calculateAnnualizedReturns(LocalDate.parse(temp.getName()), it, getOpenPrice(
+      list.add(calculateAnnualizedReturns(LocalDate.parse(sdate), it, getOpenPrice(
           it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
     }
 
