@@ -41,7 +41,8 @@ public class PortfolioManagerApplication {
   private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
 
 
-  public static Double holdingPeriod(LocalDate end,LocalDate start) {
+  public static Double holdingPeriod(
+      LocalDate end,LocalDate start) throws IOException, URISyntaxException {
 
     Period interval = Period.between(start, end);
     Double yearDiff = (double) interval.getYears() + (double) (
@@ -324,7 +325,7 @@ public class PortfolioManagerApplication {
     String filename = args[0];
     String sdate = args[1];
     //LocalDate date = LocalDate.parse(sdate);
-    
+
     File fobject = resolveFileFromResources(filename);
     ObjectMapper obmapper = getObjectMapper();
     List<PortfolioTrade> pf
