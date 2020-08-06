@@ -42,7 +42,7 @@ public class PortfolioManagerApplication {
 
 
   public static Double holdingPeriod(
-      LocalDate end,LocalDate start) throws IOException, URISyntaxException {
+      LocalDate end,LocalDate start) {
 
     Period interval = Period.between(start, end);
     Double yearDiff = (double) interval.getYears() + (double) (
@@ -363,7 +363,7 @@ public class PortfolioManagerApplication {
 
   public static AnnualizedReturn calculateAnnualizedReturns(LocalDate endDate,
       PortfolioTrade trade, 
-        Double buyPrice, Double sellPrice) throws IOException, URISyntaxException {
+        Double buyPrice, Double sellPrice) {
     
 
     try {
