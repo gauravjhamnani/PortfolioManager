@@ -366,24 +366,20 @@ public class PortfolioManagerApplication {
         Double buyPrice, Double sellPrice) {
     
 
-    try {
-      //double currVal=getPrice(trade.getSymbol(), endDate.toString());
-      double diff = sellPrice - buyPrice;
-      double totalReturn = diff / buyPrice;
-      Double years = holdingPeriod(endDate, trade.getPurchaseDate());
-      Double raisedTo = years;
-      raisedTo = 1 / raisedTo;
-      /*if (years<=0) {
-        throw new NullPointerException(); //Exact exception has to be figured out yet
-      }*/
-      double annualizedReturns = Math.pow((1 + totalReturn), raisedTo) - 1;
-      AnnualizedReturn finalret = new AnnualizedReturn(
-          trade.getSymbol(), annualizedReturns, totalReturn);
-      return finalret;
-    } catch (RuntimeException e) {
-      e.printStackTrace();
-      throw e;
-    }
+    
+    //double currVal=getPrice(trade.getSymbol(), endDate.toString());
+    double diff = sellPrice - buyPrice;
+    double totalReturn = diff / buyPrice;
+    Double years = holdingPeriod(endDate, trade.getPurchaseDate());
+    Double raisedTo = years;
+    raisedTo = 1 / raisedTo;
+    /*if (years<=0) {
+      throw new NullPointerException(); //Exact exception has to be figured out yet
+    }*/
+    double annualizedReturns = Math.pow((1 + totalReturn), raisedTo) - 1;
+    //AnnualizedReturn finalret = 
+    return new AnnualizedReturn(trade.getSymbol(), annualizedReturns, totalReturn);
+    
   }
 
 
