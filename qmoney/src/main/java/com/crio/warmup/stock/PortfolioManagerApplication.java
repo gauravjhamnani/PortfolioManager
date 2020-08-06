@@ -339,7 +339,7 @@ public class PortfolioManagerApplication {
         return Collections.emptyList();
       }
       Pair temp = getPrice(it.getSymbol(),sdate);
-      list.add(calculateAnnualizedReturns(LocalDate.parse(sdate), it, getOpenPrice(
+      list.add(calculateAnnualizedReturns(LocalDate.parse(temp.getName()), it, getOpenPrice(
           it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
     }
 
@@ -377,7 +377,9 @@ public class PortfolioManagerApplication {
       throw new NullPointerException(); //Exact exception has to be figured out yet
     }*/
     double annualizedReturns = Math.pow((1 + totalReturn), raisedTo) - 1;
-    return new AnnualizedReturn(trade.getSymbol(), annualizedReturns, totalReturn);
+    AnnualizedReturn finalret = new AnnualizedReturn(
+        trade.getSymbol(), annualizedReturns, totalReturn);
+    return finalret;
   }
 
 
