@@ -1,13 +1,10 @@
 
 package com.crio.warmup.stock.dto;
 
-import java.io.Serializable;
 import java.util.Comparator;
 
-public class AnnualizedReturn/* implements Comparable<AnnualizedReturn>*/ {
+public class AnnualizedReturn {
 
-
-  //private static final long serialVersionUID = 1L;
   private final String symbol;
   private final Double annualizedReturn;
   private final Double totalReturns;
