@@ -258,7 +258,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
     // String filename = args[0];
     String sdate = endDate.toString();
-    LocalDate date = LocalDate.parse(sdate);
+    //LocalDate date = LocalDate.parse(sdate);
 
     /*
      * File fobject = resolveFileFromResources(filename); ObjectMapper obmapper =
@@ -275,12 +275,14 @@ public class PortfolioManagerImpl implements PortfolioManager {
       if (!isValidDate(sdate)) {
         return Collections.emptyList();
       }
-      if (date.isBefore(it.getPurchaseDate())) {
-        throw new NullPointerException();
-        //return Collections.emptyList();
-      }
+      
       Pair temp = getPrice(it.getSymbol(), sdate);
-      list.add(calculateAnnualizedReturnsHelper(LocalDate.parse(temp.getName()), it,
+      LocalDate updatedDate = LocalDate.parse(temp.getName());
+      if (updatedDate.isBefore(it.getPurchaseDate())) {
+        //throw new NullPointerException();
+        return Collections.emptyList();
+      }
+      list.add(calculateAnnualizedReturnsHelper(updatedDate, it,
           getOpenPrice(it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
     }
 
