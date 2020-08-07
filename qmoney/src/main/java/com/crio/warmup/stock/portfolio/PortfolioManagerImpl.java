@@ -57,6 +57,9 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // break!
   // This is absolutely necessary for backward compatibility
   protected PortfolioManagerImpl(RestTemplate restTemplate) {
+    if (restTemplate == null) {
+      this.restTemplate = new RestTemplate();
+    }
     this.restTemplate = restTemplate;
   }
 
@@ -96,6 +99,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
     String script = restTemplate.exchange(buildUri(symbol, from, to), HttpMethod.GET, entity, String.class).getBody();*/
     //RestTemplate resttemp = new RestTemplate();
+    
     Candle[] list = restTemplate.getForObject(buildUri(symbol, from, to), Candle[].class);
     if (list == null) {
       return Collections.emptyList();
