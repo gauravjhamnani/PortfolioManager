@@ -80,8 +80,10 @@ class PortfolioManagerTest {
   public void calculateExtrapolatedAnnualizedReturn()
       throws Exception {
     //given
-    /*String moduleToRun = "";
-
+    //String moduleToRun = null; 
+    //   THIS WAS THE DEFAULT ASSIGNMENT and GIVES NULLPOINTEREXCEPTION THIS WAY
+    //String moduleToRun = ""; //   BUILD IS SUCCESSFUL THIS WAY
+    String moduleToRun = "REFACTOR"; // REFER TO TERMINAL for OUTCOME
 
     if (moduleToRun.equals("REFACTOR")) {
       Mockito.doReturn(getCandles(aaplQuotes))
@@ -108,7 +110,7 @@ class PortfolioManagerTest {
     Assertions.assertEquals(0.814, annualizedReturns.get(0).getAnnualizedReturn(), 0.01);
     Assertions.assertEquals(0.584, annualizedReturns.get(1).getAnnualizedReturn(), 0.01);
     Assertions.assertEquals(0.33, annualizedReturns.get(2).getAnnualizedReturn(),0.01);
-    Assertions.assertEquals(Arrays.asList(new String[]{"AAPL", "MSFT", "GOOGL"}), symbols);*/
+    Assertions.assertEquals(Arrays.asList(new String[]{"AAPL", "MSFT", "GOOGL"}), symbols);
 
   }
 

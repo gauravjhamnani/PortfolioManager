@@ -50,7 +50,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class PortfolioManagerImpl implements PortfolioManager {
 
-  private static String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
+  private String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
   private RestTemplate restTemplate;
 
   // Caution: Do not delete or modify the constructor, or else your build will
@@ -59,8 +59,9 @@ public class PortfolioManagerImpl implements PortfolioManager {
   protected PortfolioManagerImpl(RestTemplate restTemplate) {
     if (restTemplate == null) {
       this.restTemplate = new RestTemplate();
+    } else {
+      this.restTemplate = restTemplate;
     }
-    this.restTemplate = restTemplate;
   }
 
   // TODO: CRIO_TASK_MODULE_REFACTOR
@@ -105,9 +106,9 @@ public class PortfolioManagerImpl implements PortfolioManager {
       return Collections.emptyList();
     }
     else {
+
       List<Candle> purpose = new ArrayList<Candle>();
       Collections.addAll(purpose, list);
-
       return purpose;
     }
   }
@@ -119,7 +120,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   }
 
   // return JSON obtained from API call as a string
-  private static String getPriceJson(String url) throws IOException, URISyntaxException {
+  private String getPriceJson(String url) throws IOException, URISyntaxException {
 
     /*
      * HttpHeaders headers = new HttpHeaders();
@@ -149,7 +150,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   }
   // Check this menthod later on the substring thing
 
-  private static String generateUrl(String stockName, LocalDate ldate) {
+  private String generateUrl(String stockName, LocalDate ldate) {
 
     String date = ldate.toString();
     String url = "https://api.tiingo.com/tiingo/daily/" + stockName + "/prices?startDate=" + date + "&endDate=" + date
@@ -157,7 +158,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
     return url;
   }
 
-  private static Pair getPrice(String stockName, String sdate) throws IOException, URISyntaxException {
+  private Pair getPrice(String stockName, String sdate) throws IOException, URISyntaxException {
 
     String url;
     String jsonIn;
@@ -171,17 +172,17 @@ public class PortfolioManagerImpl implements PortfolioManager {
       // ctr++;
     } while (jsonIn.length() == 2);
     date = date.plusDays(1);
-    String json = jsonIn.substring(1, jsonIn.length() - 1); // to remove square brackets obtained in the string
+    //String json = jsonIn.substring(1, jsonIn.length() - 1); // to remove square brackets obtained in the string
     ObjectMapper obmapper = getObjectMapper();
-    TiingoCandle pf = obmapper.readValue(json, TiingoCandle.class);
-    return new Pair(date.toString(), pf.getClose());
+    TiingoCandle[] pf = obmapper.readValue(jsonIn, TiingoCandle[].class);
+    return new Pair(date.toString(), pf[0].getClose());
   }
 
-  private static Double holdingPeriod(LocalDate end, LocalDate start) {
+  private Double holdingPeriod(LocalDate end, LocalDate start) {
 
     Period interval = Period.between(start, end);
     Double yearDiff = (double) interval.getYears() + (double) (interval.getMonths()) / 12
-        + (double) interval.getDays() / 366;
+        + (double) interval.getDays() / 365;
     /*
      * if ((end.getMonthValue() - start.getMonthValue()) >= 10) { yearDiff++; }
      */
@@ -189,7 +190,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   }
 
-  private static Pair getOpenPrice(String stockName, String sdate) throws IOException, URISyntaxException {
+  private Pair getOpenPrice(String stockName, String sdate) throws IOException, URISyntaxException {
 
     String url;
     String jsonIn;
@@ -203,13 +204,13 @@ public class PortfolioManagerImpl implements PortfolioManager {
       // ctr++;
     } while (jsonIn.length() == 2);
     date = date.plusDays(1);
-    String json = jsonIn.substring(1, jsonIn.length() - 1); // to remove square brackets obtained in the string
+    //String json = jsonIn.substring(1, jsonIn.length() - 1); // to remove square brackets obtained in the string
     ObjectMapper obmapper = getObjectMapper();
-    TiingoCandle pf = obmapper.readValue(json, TiingoCandle.class);
-    return new Pair(date.toString(), pf.getOpen());
+    TiingoCandle[] pf = obmapper.readValue(jsonIn, TiingoCandle[].class);
+    return new Pair(date.toString(), pf[0].getOpen());
   }
 
-  private static boolean isValidDate(String inDate) {
+  private boolean isValidDate(String inDate) {
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     dateFormat.setLenient(false);
     try {
@@ -233,7 +234,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
     return objectMapper;
   }
 
-  private static AnnualizedReturn calculateAnnualizedReturnsHelper(LocalDate endDate, PortfolioTrade trade,
+  private AnnualizedReturn calculateAnnualizedReturnsHelper(LocalDate endDate, PortfolioTrade trade,
       Double buyPrice, Double sellPrice) {
 
     // double currVal=getPrice(trade.getSymbol(), endDate.toString());
@@ -257,7 +258,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       LocalDate endDate) throws IOException, URISyntaxException {
 
     // String filename = args[0];
-    String sdate = endDate.toString();
+    //String sdate = endDate.toString();
     //LocalDate date = LocalDate.parse(sdate);
 
     /*
@@ -270,7 +271,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
     List<AnnualizedReturn> list = new ArrayList<AnnualizedReturn>();
 
-    for (PortfolioTrade it : pf) {
+    /*for (PortfolioTrade it : pf) {
 
       if (!isValidDate(sdate)) {
         return Collections.emptyList();
@@ -284,9 +285,24 @@ public class PortfolioManagerImpl implements PortfolioManager {
       }
       list.add(calculateAnnualizedReturnsHelper(updatedDate, it,
           getOpenPrice(it.getSymbol(), it.getPurchaseDate().toString()).getPrice(), temp.getPrice()));
+    }*/
+    for (PortfolioTrade it:pf) {
+      
+      LocalDate purchaseDateIt = it.getPurchaseDate(); 
+      List<Candle> quotes = getStockQuote(it.getSymbol(), purchaseDateIt, endDate); 
+      if (quotes.size() <= 1) {
+        throw new NullPointerException();
+      }
+      Double sellPrice = quotes.get(quotes.size() - 1).getClose();
+      Double buyPrice = quotes.get(0).getOpen();
+      list.add(calculateAnnualizedReturnsHelper(endDate, it, buyPrice, sellPrice));
+      
     }
 
-    Collections.sort(list, AnnualizedReturn.name);
+
+
+    //Collections.sort(list, AnnualizedReturn.name);
+    Collections.sort(list, getComparator());
 
     return list;
   }
