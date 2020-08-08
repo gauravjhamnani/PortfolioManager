@@ -57,11 +57,12 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // break!
   // This is absolutely necessary for backward compatibility
   protected PortfolioManagerImpl(RestTemplate restTemplate) {
-    if (restTemplate == null) {
+    /*if (restTemplate == null) {
       this.restTemplate = new RestTemplate();
     } else {
       this.restTemplate = restTemplate;
-    }
+    }*/
+    this.restTemplate = restTemplate;
   }
 
   // TODO: CRIO_TASK_MODULE_REFACTOR
