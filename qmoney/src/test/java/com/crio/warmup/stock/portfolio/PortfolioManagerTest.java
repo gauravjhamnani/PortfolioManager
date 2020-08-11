@@ -80,10 +80,8 @@ class PortfolioManagerTest {
   public void calculateExtrapolatedAnnualizedReturn()
       throws Exception {
     //given
-    //String moduleToRun = null; 
-    //   THIS WAS THE DEFAULT ASSIGNMENT and GIVES NULLPOINTEREXCEPTION THIS WAY
-    //String moduleToRun = ""; //   BUILD IS SUCCESSFUL THIS WAY
-    String moduleToRun = "REFACTOR"; // REFER TO TERMINAL for OUTCOME
+    String moduleToRun = "REFACTOR";
+
 
     if (moduleToRun.equals("REFACTOR")) {
       Mockito.doReturn(getCandles(aaplQuotes))

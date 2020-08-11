@@ -1,5 +1,7 @@
-
 package com.crio.warmup.stock.portfolio;
+
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 import com.crio.warmup.stock.Pair;
 import com.crio.warmup.stock.dto.AnnualizedReturn;
@@ -7,19 +9,16 @@ import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -83,44 +82,6 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   // CHECKSTYLE:OFF
 
-  private Comparator<AnnualizedReturn> getComparator() {
-    return Comparator.comparing(AnnualizedReturn::getAnnualizedReturn).reversed();
-  }
-
-  // CHECKSTYLE:OFF
-
-  // TODO: CRIO_TASK_MODULE_REFACTOR
-  // Extract the logic to call Tiingo third-party APIs to a separate function.
-  // Remember to fill out the buildUri function and use that.
-
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws JsonProcessingException {
-
-    /*HttpHeaders headers = new HttpHeaders();
-    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-    HttpEntity<String> entity = new HttpEntity<String>(headers);
-
-    String script = restTemplate.exchange(buildUri(symbol, from, to), HttpMethod.GET, entity, String.class).getBody();*/
-    //RestTemplate resttemp = new RestTemplate();
-    
-    Candle[] list = restTemplate.getForObject(buildUri(symbol, from, to), Candle[].class);
-    if (list == null) {
-      return Collections.emptyList();
-    }
-    else {
-
-      List<Candle> purpose = new ArrayList<Candle>();
-      Collections.addAll(purpose, list);
-      return purpose;
-    }
-  }
-
-  protected String buildUri(String symbol, LocalDate startDate, LocalDate endDate) {
-    String url = "https://api.tiingo.com/tiingo/daily/" + symbol + "/prices?startDate=" + startDate.toString()
-        + "&endDate=" + endDate.toString() + "&token=" + key;
-    return url;
-  }
-
-  // return JSON obtained from API call as a string
   private String getPriceJson(String url) throws IOException, URISyntaxException {
 
     /*
@@ -149,6 +110,58 @@ public class PortfolioManagerImpl implements PortfolioManager {
     }
 
   }
+  
+  private Comparator<AnnualizedReturn> getComparator() {
+    return Comparator.comparing(AnnualizedReturn::getAnnualizedReturn).reversed();
+  }
+
+  // CHECKSTYLE:OFF
+
+  // TODO: CRIO_TASK_MODULE_REFACTOR
+  // Extract the logic to call Tiingo third-party APIs to a separate function.
+  // Remember to fill out the buildUri function and use that.
+
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws URISyntaxException {
+
+    /*HttpHeaders headers = new HttpHeaders();
+    headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+    HttpEntity<String> entity = new HttpEntity<String>(headers);
+
+    String script = restTemplate.exchange(buildUri(symbol, from, to), HttpMethod.GET, entity, String.class).getBody();*/
+    //RestTemplate resttemp = new RestTemplate();
+    
+    //Candle[] list = restTemplate.getForObject(buildUri(symbol, from, to), Candle[].class);
+    if (from.compareTo(to) >= 0) {
+      throw new RuntimeException();
+    }
+    String script = buildUri(symbol, from, to);
+    //Candle[] list = restTemplate.getForObject(script, Candle[].class); //THIS DID NOT WORK > FIGURE IT OUT LATER.
+    TiingoCandle[] list = restTemplate.getForObject(script, TiingoCandle[].class);
+    /*ObjectMapper obmapper = getObjectMapper();
+    String script = getPriceJson(buildUri(symbol, from, to));
+    Candle[] list = obmapper.readValue(script, Candle[].class);*/
+    if (list == null) {
+      return new ArrayList<Candle>();
+    }
+    else {
+
+      List<Candle> purpose = Arrays.asList(list);
+      //Collections.addAll(purpose, list);
+      return purpose;
+    }
+  }
+
+  
+
+
+  protected String buildUri(String symbol, LocalDate startDate, LocalDate endDate) {
+    String url = "https://api.tiingo.com/tiingo/daily/" + symbol + "/prices?startDate=" + startDate.toString()
+        + "&endDate=" + endDate.toString() + "&token=" + key;
+    return url;
+  }
+
+  // return JSON obtained from API call as a string
+  
   // Check this menthod later on the substring thing
 
   private String generateUrl(String stockName, LocalDate ldate) {
@@ -256,7 +269,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   @Override
   public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,
-      LocalDate endDate) throws IOException, URISyntaxException {
+      LocalDate endDate) throws URISyntaxException {
 
     // String filename = args[0];
     //String sdate = endDate.toString();
@@ -291,6 +304,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       
       LocalDate purchaseDateIt = it.getPurchaseDate(); 
       List<Candle> quotes = getStockQuote(it.getSymbol(), purchaseDateIt, endDate); 
+      //List<Candle> quotes = gSQ(it.getSymbol(), purchaseDateIt, endDate);
       if (quotes.size() <= 1) {
         throw new NullPointerException();
       }
@@ -311,5 +325,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   
 
   
+
+
 
 }

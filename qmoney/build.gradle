@@ -3,9 +3,23 @@ plugins {
     id 'java'
 }
 
+
+
 group = 'com.crio.warmup'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.crio.warmup'
+            artifactId 'annual-return'
+            version '1.0.0'
+
+            from components.java
+        }
+    }
+}
 
 configurations {
     compileOnly {
@@ -58,4 +72,8 @@ test {
 }
 
 
+publishing {
+    publications {
+    }
+}
 
