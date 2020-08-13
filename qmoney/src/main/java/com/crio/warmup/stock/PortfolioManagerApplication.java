@@ -4,7 +4,7 @@ import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
 
-//import com.crio.warmup.stock.dto.TotalReturnsDto;
+import com.crio.warmup.stock.dto.TotalReturnsDto;
 import com.crio.warmup.stock.log.UncaughtExceptionHandler;
 import com.crio.warmup.stock.portfolio.PortfolioManager;
 import com.crio.warmup.stock.portfolio.PortfolioManagerFactory;
@@ -36,7 +36,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
-
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.web.client.RestTemplate;
 

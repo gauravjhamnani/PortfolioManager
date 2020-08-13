@@ -8,6 +8,7 @@ import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.quotes.StockQuotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -30,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,18 +52,27 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public class PortfolioManagerImpl implements PortfolioManager {
 
   private String key = "4a59a723ec41549e4f8a093e470fd900a5ec4452";
+  //public String provider;
+  StockQuotesService quoteObj = null;
   private RestTemplate restTemplate;
 
   // Caution: Do not delete or modify the constructor, or else your build will
   // break!
   // This is absolutely necessary for backward compatibility
+
   protected PortfolioManagerImpl(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
+
+  protected PortfolioManagerImpl(StockQuotesService quoteObj) {
     /*if (restTemplate == null) {
       this.restTemplate = new RestTemplate();
     } else {
       this.restTemplate = restTemplate;
     }*/
-    this.restTemplate = restTemplate;
+    //this.provider = provider;
+    this.quoteObj = quoteObj;
+    //this.restTemplate = restTemplate;
   }
 
   // TODO: CRIO_TASK_MODULE_REFACTOR
@@ -121,7 +132,8 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // Extract the logic to call Tiingo third-party APIs to a separate function.
   // Remember to fill out the buildUri function and use that.
 
-  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) throws URISyntaxException {
+  public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) 
+      throws URISyntaxException,JsonProcessingException {
 
     /*HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -134,21 +146,33 @@ public class PortfolioManagerImpl implements PortfolioManager {
     if (from.compareTo(to) >= 0) {
       throw new RuntimeException();
     }
-    String script = buildUri(symbol, from, to);
-    //Candle[] list = restTemplate.getForObject(script, Candle[].class); //THIS DID NOT WORK > FIGURE IT OUT LATER.
-    TiingoCandle[] list = restTemplate.getForObject(script, TiingoCandle[].class);
-    /*ObjectMapper obmapper = getObjectMapper();
-    String script = getPriceJson(buildUri(symbol, from, to));
-    Candle[] list = obmapper.readValue(script, Candle[].class);*/
-    if (list == null) {
-      return new ArrayList<Candle>();
-    }
-    else {
+    if (quoteObj == null) {
+      
+      String script = buildUri(symbol, from, to);
+      //Candle[] list = restTemplate.getForObject(script, Candle[].class); 
+      //THIS DID NOT WORK > FIGURE IT OUT LATER.
+      TiingoCandle[] list = restTemplate.getForObject(script, TiingoCandle[].class);
+      /**ObjectMapper obmapper = getObjectMapper();
+      String script = getPriceJson(buildUri(symbol, from, to));
+      Candle[] list = obmapper.readValue(script, Candle[].class);*/
+      if (list == null) {
+        return new ArrayList<Candle>();
+      }
+      else {
 
-      List<Candle> purpose = Arrays.asList(list);
-      //Collections.addAll(purpose, list);
-      return purpose;
+        List<Candle> purpose = Arrays.asList(list);
+        //Collections.addAll(purpose, list);
+        return purpose;
+      }
+    } else {
+      List<Candle> list = quoteObj.getStockQuote(symbol, from, to);
+      if (list == null) {
+        return new ArrayList<Candle>();
+      } else {
+        return list;
+      }
     }
+
   }
 
   
@@ -269,7 +293,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   @Override
   public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,
-      LocalDate endDate) throws URISyntaxException {
+      LocalDate endDate) throws JsonProcessingException, URISyntaxException {
 
     // String filename = args[0];
     //String sdate = endDate.toString();
@@ -304,7 +328,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       
       LocalDate purchaseDateIt = it.getPurchaseDate(); 
       List<Candle> quotes = getStockQuote(it.getSymbol(), purchaseDateIt, endDate); 
-      //List<Candle> quotes = gSQ(it.getSymbol(), purchaseDateIt, endDate);
+      //List<Candle> quotes = quoteObj.getStockQuote(it.getSymbol(), purchaseDateIt, endDate);
       if (quotes.size() <= 1) {
         throw new NullPointerException();
       }
@@ -327,5 +351,18 @@ public class PortfolioManagerImpl implements PortfolioManager {
   
 
 
+
+
+
+
+
+
+// Caution: Do not delete or modify the constructor, or else your build will break!
+// This is absolutely necessary for backward compatibility
+// ¶TODO: CRIO_TASK_MODULE_ADDITIONAL_REFACTOR
+//  Modify the function #getStockQuote and start delegating to calls to
+//  stockQuoteService provided via newly added constructor of the class.
+//  You also have a liberty to completely get rid of that function itself, however, make sure
+//  that you do not delete the #getStockQuote function.
 
 }

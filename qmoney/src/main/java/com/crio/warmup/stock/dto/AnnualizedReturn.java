@@ -1,4 +1,3 @@
-
 package com.crio.warmup.stock.dto;
 
 import java.util.Comparator;
