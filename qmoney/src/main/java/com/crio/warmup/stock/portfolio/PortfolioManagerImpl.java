@@ -150,11 +150,13 @@ public class PortfolioManagerImpl implements PortfolioManager {
       
       String script = buildUri(symbol, from, to);
       //Candle[] list = restTemplate.getForObject(script, Candle[].class); 
-      //THIS DID NOT WORK > FIGURE IT OUT LATER.
+      //THIS DID NOT WORK > FIGURE IT OUT LATER. DONE!!YAYY
+
       TiingoCandle[] list = restTemplate.getForObject(script, TiingoCandle[].class);
       /**ObjectMapper obmapper = getObjectMapper();
       String script = getPriceJson(buildUri(symbol, from, to));
       Candle[] list = obmapper.readValue(script, Candle[].class);*/
+      
       if (list == null) {
         return new ArrayList<Candle>();
       }
