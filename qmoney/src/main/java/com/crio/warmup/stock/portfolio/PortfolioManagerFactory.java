@@ -43,6 +43,10 @@ public class PortfolioManagerFactory {
     StockQuoteServiceFactory obj = StockQuoteServiceFactory.INSTANCE;
     StockQuotesService quoteObj = obj.getService(provider, restTemplate);
     PortfolioManager pfObject = new PortfolioManagerImpl(quoteObj);
+
+    //StockQuotesService quoteObj = obj.getService(provider, restTemplate);
+    //PortfolioManager pfObject = new PortfolioManagerImpl(obj, provider, restTemplate);
+    
     return pfObject;
   }
 

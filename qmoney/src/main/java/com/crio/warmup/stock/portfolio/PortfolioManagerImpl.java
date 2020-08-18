@@ -9,6 +9,7 @@ import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
 import com.crio.warmup.stock.exception.StockQuoteServiceException;
+import com.crio.warmup.stock.quotes.StockQuoteServiceFactory;
 import com.crio.warmup.stock.quotes.StockQuotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,15 +66,18 @@ public class PortfolioManagerImpl implements PortfolioManager {
     this.restTemplate = restTemplate;
   }
 
-  protected PortfolioManagerImpl(StockQuotesService quoteObj) {
-    /*if (restTemplate == null) {
-      this.restTemplate = new RestTemplate();
-    } else {
-      this.restTemplate = restTemplate;
-    }*/
+  /*protected PortfolioManagerImpl(StockQuoteServiceFactory quoteObj,
+      String provider, RestTemplate restTemplate) 
+      throws StockQuoteServiceException {
+    
     //this.provider = provider;
+    this.quoteObj = quoteObj.getService(provider, restTemplate);
+    this.restTemplate = restTemplate;
+  }
+    */
+    
+  protected PortfolioManagerImpl(StockQuotesService quoteObj) {
     this.quoteObj = quoteObj;
-    //this.restTemplate = restTemplate;
   }
 
   // TODO: CRIO_TASK_MODULE_REFACTOR
