@@ -8,6 +8,7 @@ import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
 import com.crio.warmup.stock.quotes.StockQuotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -133,7 +134,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // Remember to fill out the buildUri function and use that.
 
   public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) 
-      throws URISyntaxException,JsonProcessingException {
+      throws URISyntaxException,JsonProcessingException, StockQuoteServiceException {
 
     /*HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -143,9 +144,6 @@ public class PortfolioManagerImpl implements PortfolioManager {
     //RestTemplate resttemp = new RestTemplate();
     
     //Candle[] list = restTemplate.getForObject(buildUri(symbol, from, to), Candle[].class);
-    if (from.compareTo(to) >= 0) {
-      throw new RuntimeException();
-    }
     if (quoteObj == null) {
       
       String script = buildUri(symbol, from, to);
@@ -167,7 +165,15 @@ public class PortfolioManagerImpl implements PortfolioManager {
         return purpose;
       }
     } else {
-      List<Candle> list = quoteObj.getStockQuote(symbol, from, to);
+
+      List<Candle> list;
+      try {
+        list = quoteObj.getStockQuote(symbol, from, to);
+      }
+      catch (Exception e) {
+        throw new StockQuoteServiceException("getStockQuote response is flawed");
+      }
+      
       if (list == null) {
         return new ArrayList<Candle>();
       } else {
@@ -295,7 +301,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   @Override
   public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,
-      LocalDate endDate) throws JsonProcessingException, URISyntaxException {
+      LocalDate endDate) throws JsonProcessingException, URISyntaxException, StockQuoteServiceException {
 
     // String filename = args[0];
     //String sdate = endDate.toString();
@@ -329,10 +335,22 @@ public class PortfolioManagerImpl implements PortfolioManager {
     for (PortfolioTrade it:pf) {
       
       LocalDate purchaseDateIt = it.getPurchaseDate(); 
-      List<Candle> quotes = getStockQuote(it.getSymbol(), purchaseDateIt, endDate); 
-      //List<Candle> quotes = quoteObj.getStockQuote(it.getSymbol(), purchaseDateIt, endDate);
-      if (quotes.size() <= 1) {
-        throw new NullPointerException();
+
+      if (purchaseDateIt.compareTo(endDate) > 0) {
+        throw new RuntimeException("STOCKS PURCHASE AFTER QUERIED DATE");
+      }
+      List<Candle> quotes;
+      try {
+        quotes = getStockQuote(it.getSymbol(), purchaseDateIt, endDate); 
+      } catch (Exception e) {
+        throw new StockQuoteServiceException("Problem in resolving quotes");
+      }
+      
+      
+      
+        //List<Candle> quotes = quoteObj.getStockQuote(it.getSymbol(), purchaseDateIt, endDate);
+      if (quotes.size() <= 0) {
+        throw new NullPointerException("Quotes not retrieved");
       }
       Double sellPrice = quotes.get(quotes.size() - 1).getClose();
       Double buyPrice = quotes.get(0).getOpen();

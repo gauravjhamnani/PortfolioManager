@@ -3,12 +3,16 @@ package com.crio.warmup.stock.quotes;
 
 import com.crio.warmup.stock.dto.Candle;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+
 import org.springframework.web.client.RestTemplate;
 
 public class TiingoService implements StockQuotesService {
@@ -30,7 +34,8 @@ public class TiingoService implements StockQuotesService {
 
   @Override
   public List<Candle> getStockQuote(
-      String symbol, LocalDate from, LocalDate to) throws JsonProcessingException {
+      String symbol, LocalDate from, LocalDate to) throws JsonProcessingException, 
+        StockQuoteServiceException {
     
     String url = buildUri(symbol, from, to);
 
@@ -41,10 +46,18 @@ public class TiingoService implements StockQuotesService {
 
     String resp = restTemplate.getForObject(url, String.class);
     //TiingoCandle[] resp = restTemplate.getForObject(url, TiingoCandle[].class);
-
+    if (resp == null) {
+      throw new StockQuoteServiceException("TIINGO SERVICE SERVER DOWN");
+    }
     ObjectMapper ob = new ObjectMapper();
     ob.registerModule(new JavaTimeModule());
-    TiingoCandle[] anotherResp = ob.readValue(resp, TiingoCandle[].class);
+
+    TiingoCandle[] anotherResp;
+    try {
+      anotherResp = ob.readValue(resp, TiingoCandle[].class);
+    } catch (JsonProcessingException e) {
+      throw new StockQuoteServiceException("INVALID RESPONSE FROM TINNGO");
+    }
     if (anotherResp == null) {
       throw new RuntimeException();
     } else {
@@ -71,5 +84,21 @@ public class TiingoService implements StockQuotesService {
 
   // TODO: CRIO_TASK_MODULE_ADDITIONAL_REFACTOR
   //  Write a method to create appropriate url to call the Tiingo API.
+
+
+
+
+
+  // TODO: CRIO_TASK_MODULE_EXCEPTIONS
+  //  1. Update the method signature to match the signature change in the interface.
+  //     Start throwing new StockQuoteServiceException when you get some invalid response from
+  //     Tiingo, or if Tiingo returns empty results for whatever reason, or you encounter
+  //     a runtime exception during Json parsing.
+  //  2. Make sure that the exception propagates all the way from
+  //     PortfolioManager#calculateAnnualisedReturns so that the external user's of our API
+  //     are able to explicitly handle this exception upfront.
+
+  //CHECKSTYLE:OFF
+
 
 }

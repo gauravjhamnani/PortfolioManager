@@ -16,7 +16,6 @@ plugins {
     id 'maven-publish'
 }
 
-
 ext {
     buildId = System.currentTimeMillis()
     // Dependency versions

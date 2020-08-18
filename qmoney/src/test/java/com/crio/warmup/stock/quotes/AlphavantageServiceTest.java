@@ -62,12 +62,11 @@ class AlphavantageServiceTest {
   @MockitoSettings(strictness = Strictness.LENIENT)
   void getStockQuoteSingle() throws Exception {
     Mockito.doReturn(aaplQuotes).when(restTemplate).getForObject(anyString(), eq(String.class));
-    
+
     List<Candle> candles = alphavantageService
         .getStockQuote("AAPL",
             LocalDate.parse("2019-01-01"), LocalDate.parse("2019-01-04"));
 
-    System.out.println(candles.get(0).toString());
     assertEquals(candles.get(0).getOpen(), 154.89, 0.1);
     assertEquals(candles.get(2).getClose(), 148.26, 0.1);
     assertEquals(candles.get(2).getDate(), LocalDate.parse("2019-01-04"));

@@ -3,6 +3,7 @@ package com.crio.warmup.stock.quotes;
 
 import com.crio.warmup.stock.dto.AlphavantageCandle;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.exception.StockQuoteServiceException;
 
 import org.springframework.web.client.RestTemplate;
 
@@ -25,12 +26,16 @@ public enum StockQuoteServiceFactory {
   //  Run the tests using command below and make sure it passes
   //  ./gradlew test --tests StockQuoteServiceFactory
 
-  public StockQuotesService getService(String provider,  RestTemplate restTemplate) {
+  public StockQuotesService getService(
+      String provider,  RestTemplate restTemplate) throws StockQuoteServiceException {
 
-    if (provider.equalsIgnoreCase("TIINGO")) {
+    /*if (provider == null) {
+      throw new RuntimeException("Provider is not specified");
+    }*/
+    if (provider != null && provider.equalsIgnoreCase("TIINGO")) {
       return new TiingoService(restTemplate);
     } else {
-      return new AlphavantageService(restTemplate);
+      return new AlphavantageService(restTemplate);  
     }
   }
 }
