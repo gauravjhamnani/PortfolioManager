@@ -27,7 +27,7 @@ public enum StockQuoteServiceFactory {
   //  ./gradlew test --tests StockQuoteServiceFactory
 
   public StockQuotesService getService(
-      String provider,  RestTemplate restTemplate) throws StockQuoteServiceException {
+      String provider,  RestTemplate restTemplate) {
 
     /*if (provider == null) {
       throw new RuntimeException("Provider is not specified");

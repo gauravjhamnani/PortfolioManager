@@ -37,8 +37,9 @@ public class PortfolioManagerFactory {
   // 3. Make sure all of the tests pass by using the gradle command below:
   // ./gradlew test --tests PortfolioManagerFactory
 
-  public static PortfolioManager getPortfolioManager(String provider, RestTemplate restTemplate)
-      throws StockQuoteServiceException {
+  public static PortfolioManager getPortfolioManager(
+      String provider, RestTemplate restTemplate) {
+       
 
     StockQuoteServiceFactory obj = StockQuoteServiceFactory.INSTANCE;
     StockQuotesService quoteObj = obj.getService(provider, restTemplate);
