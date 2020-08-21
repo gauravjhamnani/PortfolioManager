@@ -305,7 +305,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
 
   @Override
   public List<AnnualizedReturn> calculateAnnualizedReturn(List<PortfolioTrade> portfolioTrades,
-      LocalDate endDate) throws JsonProcessingException, URISyntaxException, StockQuoteServiceException {
+      LocalDate endDate) throws StockQuoteServiceException {
 
     // String filename = args[0];
     //String sdate = endDate.toString();
