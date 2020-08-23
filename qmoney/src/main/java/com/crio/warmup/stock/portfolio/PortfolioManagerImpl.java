@@ -461,6 +461,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       } catch (InterruptedException | ExecutionException e) {
 
         e.printStackTrace();
+        return null;
       }
 
     }
