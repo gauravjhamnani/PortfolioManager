@@ -460,6 +460,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
       } catch (InterruptedException | ExecutionException e) {
 
         e.printStackTrace();
+        throw new StockQuoteServiceException("Concurrency failed");
       }
       solution.add(result);
 
