@@ -456,13 +456,12 @@ public class PortfolioManagerImpl implements PortfolioManager {
       AnnualizedReturn result = null;
       try {
         result = it.get();
-        solution.add(result);
-
+        System.out.println(it.isDone());
       } catch (InterruptedException | ExecutionException e) {
 
         e.printStackTrace();
-        return null;
       }
+      solution.add(result);
 
     }
     exserv.shutdown();
