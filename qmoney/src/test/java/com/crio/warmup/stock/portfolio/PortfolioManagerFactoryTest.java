@@ -1,8 +1,6 @@
 
 package com.crio.warmup.stock.portfolio;
 
-import com.crio.warmup.stock.exception.StockQuoteServiceException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,14 +14,16 @@ class PortfolioManagerFactoryTest {
   @Mock
   private RestTemplate restTemplate;
 
+
+
   @Test
   void getPortfolioManager() {
-    Assertions.assertTrue(
-        PortfolioManagerFactory.getPortfolioManager(restTemplate) instanceof PortfolioManager);
+    Assertions.assertTrue(PortfolioManagerFactory.getPortfolioManager(restTemplate)
+        instanceof PortfolioManager);
   }
 
   @Test
-  void getPortfolioManagerWithStockQuoteService() throws StockQuoteServiceException {
+  void getPortfolioManagerWithStockQuoteService() {
     Assertions.assertTrue(PortfolioManagerFactory.getPortfolioManager("tiingo", restTemplate)
         instanceof PortfolioManager);
   }

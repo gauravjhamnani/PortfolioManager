@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -138,7 +138,7 @@ public class PortfolioManagerImpl implements PortfolioManager {
   // Remember to fill out the buildUri function and use that.
 
   public List<Candle> getStockQuote(String symbol, LocalDate from, LocalDate to) 
-      throws URISyntaxException,JsonProcessingException, StockQuoteServiceException {
+      throws JsonProcessingException, StockQuoteServiceException {
 
     /*HttpHeaders headers = new HttpHeaders();
     headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -388,5 +388,86 @@ public class PortfolioManagerImpl implements PortfolioManager {
 //  stockQuoteService provided via newly added constructor of the class.
 //  You also have a liberty to completely get rid of that function itself, however, make sure
 //  that you do not delete the #getStockQuote function.
+
+
+  public AnnualizedReturn calculateAnnualizedReturnSingle(
+      PortfolioTrade portfoliotrade,LocalDate endDate) 
+      throws InterruptedException, StockQuoteServiceException {
+
+    LocalDate purchaseDateIt = portfoliotrade.getPurchaseDate(); 
+
+    if (purchaseDateIt.compareTo(endDate) > 0) {
+          throw new RuntimeException("STOCKS PURCHASE AFTER QUERIED DATE");
+    }
+    List<Candle> quotes;
+    try {
+      quotes = getStockQuote(
+          portfoliotrade.getSymbol(), purchaseDateIt, endDate); 
+    } catch (Exception e) {
+      throw new StockQuoteServiceException("Problem in resolving quotes");
+    }
+        
+        
+        
+          //List<Candle> quotes = quoteObj.getStockQuote(it.getSymbol(), purchaseDateIt, endDate);
+    if (quotes.size() <= 0) {
+      throw new NullPointerException("Quotes not retrieved");
+    }
+    Double sellPrice = quotes.get(quotes.size() - 1).getClose();
+    Double buyPrice = quotes.get(0).getOpen();
+    AnnualizedReturn val = calculateAnnualizedReturnsHelper(
+        endDate, portfoliotrade, buyPrice, sellPrice);
+
+    return val;
+
+    
+
+  }
+
+
+  public List<AnnualizedReturn> calculateAnnualizedReturnParallel( 
+      List<PortfolioTrade> portfolioTrades,
+      LocalDate endDate, int numThreads) throws InterruptedException,
+      StockQuoteServiceException {
+
+    //int numthreads = portfolioTrades.size();
+    ExecutorService exserv = Executors.newFixedThreadPool(numThreads);
+
+    List<Callable<AnnualizedReturn>> callableTasks = 
+        new ArrayList<Callable<AnnualizedReturn>>();
+
+    for (PortfolioTrade it:portfolioTrades) {
+
+      Callable<AnnualizedReturn> callableTask = () -> {
+
+
+        return calculateAnnualizedReturnSingle(it, endDate);
+      };
+
+      callableTasks.add(callableTask);
+    }
+    
+    List<Future<AnnualizedReturn>> futures = exserv.invokeAll(callableTasks);
+
+    List<AnnualizedReturn> solution = new  ArrayList<>();
+    
+    for (Future<AnnualizedReturn> it:futures) {
+
+      AnnualizedReturn result = null;
+      try {
+        result = it.get();
+        solution.add(result);
+
+      } catch (InterruptedException | ExecutionException e) {
+
+        e.printStackTrace();
+      }
+
+    }
+    exserv.shutdown();
+    Collections.sort(solution, getComparator());
+    return solution;
+    
+  }
 
 }

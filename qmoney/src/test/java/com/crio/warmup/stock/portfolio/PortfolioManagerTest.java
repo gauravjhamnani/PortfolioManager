@@ -7,6 +7,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import com.crio.warmup.stock.dto.AnnualizedReturn;
 import com.crio.warmup.stock.dto.PortfolioTrade;
 import com.crio.warmup.stock.dto.TiingoCandle;
+import com.crio.warmup.stock.portfolio.PortfolioManager;
+import com.crio.warmup.stock.portfolio.PortfolioManagerImpl;
 import com.crio.warmup.stock.quotes.StockQuotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,7 +85,7 @@ class PortfolioManagerTest {
   public void calculateExtrapolatedAnnualizedReturn()
       throws Exception {
     //given
-    String moduleToRun = "ADDITIONAL_REFACTOR";
+    String moduleToRun = "REFACTOR";
 
 
     if (moduleToRun.equals("REFACTOR")) {

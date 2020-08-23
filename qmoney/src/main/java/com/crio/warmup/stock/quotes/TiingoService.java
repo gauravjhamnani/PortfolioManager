@@ -1,4 +1,3 @@
-
 package com.crio.warmup.stock.quotes;
 
 import com.crio.warmup.stock.dto.Candle;
